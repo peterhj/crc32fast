@@ -45,8 +45,8 @@
 #[macro_use]
 extern crate quickcheck;
 
-#[macro_use]
-extern crate cfg_if;
+//#[macro_use]
+//extern crate cfg_if;
 
 #[cfg(feature = "std")]
 use std as core;

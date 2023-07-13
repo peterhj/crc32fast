@@ -1,15 +1,20 @@
-cfg_if! {
-    if #[cfg(all(
-        crc32fast_stdarchx86,
+#[cfg(all(
+    target_feature = "sse2",
+    any(target_arch = "x86", target_arch = "x86_64")
+))]
+mod _impl { include!("pclmulqdq.rs"); }
+
+#[cfg(all(feature = "nightly", target_arch = "aarch64"))]
+mod _impl { include!("aarch64.rs"); }
+
+#[cfg(not(any(
+    all(
         target_feature = "sse2",
         any(target_arch = "x86", target_arch = "x86_64")
-    ))] {
-        mod pclmulqdq;
-        pub use self::pclmulqdq::State;
-    } else if #[cfg(all(feature = "nightly", target_arch = "aarch64"))] {
-        mod aarch64;
-        pub use self::aarch64::State;
-    } else {
+    ),
+    all(feature = "nightly", target_arch = "aarch64")
+)))]
+mod _impl {
         #[derive(Clone)]
         pub enum State {}
         impl State {
@@ -33,5 +38,6 @@ cfg_if! {
                 match *self {}
             }
         }
-    }
 }
+
+pub use self::_impl::State;
